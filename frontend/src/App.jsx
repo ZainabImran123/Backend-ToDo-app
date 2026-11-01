@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000");
+// Automatically switches between local development and Render production
+const BACKEND_URL = window.location.hostname === "localhost"
+  ? "http://localhost:3000"
+  : "https://backend-todo-app-api.onrender.com"; // Replace with your actual Render backend service URL when ready
+
+const socket = io(BACKEND_URL);
 
 const App = () => {
   const [todos, setTodos] = useState([]);
@@ -13,7 +18,7 @@ const App = () => {
 
   useEffect(() => {
     // Fetch persisted todos from MongoDB on page load/refresh
-    fetch("http://localhost:3000/todos")
+    fetch(`${BACKEND_URL}/todos`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched from backend on refresh:", data);
@@ -131,61 +136,3 @@ const App = () => {
                         type="text"
                         value={editingValue}
                         onChange={(e) => setEditingValue(e.target.value)}
-                        className="flex-1 border rounded-xl px-3 py-1.5 text-sm text-slate-800 focus:outline-none"
-                        style={{ backgroundColor: "#E7E8D1", borderColor: "#A7BEAE" }}
-                        autoFocus
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleSaveEdit(todo.id)}
-                        className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg cursor-pointer"
-                        style={{ backgroundColor: "#B85042" }}
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingId(null)}
-                        className="text-xs font-semibold text-slate-600 bg-slate-200 px-3 py-1.5 rounded-lg cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-sm font-medium break-all pl-1 text-slate-800 flex-1">
-                        {todo.value}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingId(todo.id);
-                            setEditingValue(todo.value);
-                          }}
-                          className="text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3 py-1.5 rounded-xl transition-all duration-200 cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteTodo(todo.id)}
-                          className="text-xs font-semibold text-white px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer hover:opacity-85"
-                          style={{ backgroundColor: "#B85042" }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default App;
